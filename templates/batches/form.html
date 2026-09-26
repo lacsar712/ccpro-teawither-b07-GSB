@@ -10,12 +10,17 @@
     {% csrf_token %}
     {% for field in form %}
     <div class="form-row">
-      <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+      <label for="{{ field.id_for_label }}">{{ field.label }}{% if form.locked and field.name in form.locked_field_names %} <span class="badge badge-locked">已锁定</span>{% endif %}</label>
       {{ field }}
       {{ field.errors }}
     </div>
     {% endfor %}
     {{ form.non_field_errors }}
+    {% if form.locked %}
+    <p class="lock-note">槽位当前为「可下槽」：最新批次的<b>开始时间</b>与<b>目标含水率</b>已锁定，不可修改；实测含水率与揉捻等级仍可更新。将槽位改回「装叶中」后锁定解除。</p>
+    {% else %}
+    <p class="muted">槽位一旦设为「可下槽」，其最新批次的开始时间与目标含水率将被锁定（实测含水率、揉捻等级仍可改）。</p>
+    {% endif %}
     <button class="btn" type="submit">保存</button>
   </form>
 </div>

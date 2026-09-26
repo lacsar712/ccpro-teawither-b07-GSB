@@ -4,12 +4,18 @@
 <div class="page-header">
   <h1>萎凋槽</h1>
   <div class="actions">
-    <button class="btn btn-secondary btn-sm"
-            hx-get="{% url 'trough_list' %}"
-            hx-target="#trough-table"
-            hx-swap="innerHTML">刷新列表</button>
     <a class="btn" href="{% url 'trough_create' %}">新建槽位</a>
   </div>
+</div>
+<div class="filter-bar">
+  <a class="chip {% if not status_filter %}chip-active{% endif %}" href="{% url 'trough_list' %}">全部 {{ status_counts.all }}</a>
+  <a class="chip {% if status_filter == 'ready' %}chip-active{% endif %}" href="?status=ready">可下槽 {{ status_counts.ready }}</a>
+  <a class="chip {% if status_filter == 'withering' %}chip-active{% endif %}" href="?status=withering">萎凋中 {{ status_counts.withering }}</a>
+  <a class="chip {% if status_filter == 'loading' %}chip-active{% endif %}" href="?status=loading">装叶中 {{ status_counts.loading }}</a>
+  <button class="btn btn-secondary btn-sm"
+          hx-get="{% url 'trough_list' %}{% if status_filter %}?status={{ status_filter }}{% endif %}"
+          hx-target="#trough-table"
+          hx-swap="innerHTML">刷新列表</button>
 </div>
 <div class="card" id="trough-table">
   {% include "troughs/_table.html" %}

@@ -54,7 +54,13 @@ python manage.py runserver 0.0.0.0:4100
 2. **Trough（萎凋槽）**：归属茶园、`troughCode`、`cultivar`、`loadKg`、状态 `loading|withering|ready`；同一茶园内槽位编号唯一
 3. **WitherBatch（萎凋批次）**：归属槽位、`startedAt`、`targetMoisture`、`actualMoisture`（可空）、`rollGrade`
 
-**业务规则**：将槽位状态设为 `ready`（可下槽）时，若最新批次的 `actualMoisture` 为空或大于 40，抛出中文 `ValidationError`。
+**业务规则**：
+
+1. 将槽位状态设为 `ready`（可下槽）时，若最新批次的 `actualMoisture` 为空或大于 40，抛出中文 `ValidationError`。
+2. **可下槽锁定**：槽位一旦为「可下槽」，其**最新批次**的 `targetMoisture`（目标含水率）与 `startedAt`（开始时间）即被锁定，编辑保存时后端强制拒绝（中文校验信息），编辑页对应字段只读；`actualMoisture`（实测含水率）与 `rollGrade`（揉捻等级）仍可修改，但仍走原有校验。
+   - 非最新（历史）批次不受此锁。
+   - 槽位改回「装叶中」后锁定解除，解除后可正常修改目标含水率。
+   - 锁定判定统一在 `apps/gardens/rules.py`（`is_batch_locked` / `get_latest_batch`），改态校验、编辑保存、表单只读、列表锁定标记、首页/列表计数全部复用它，保证两入口不分叉。
 
 ## 种子数据
 

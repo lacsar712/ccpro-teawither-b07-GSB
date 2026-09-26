@@ -7,6 +7,7 @@
       <th>目标含水率</th>
       <th>实测含水率</th>
       <th>揉捻等级</th>
+      <th>锁定</th>
       <th>操作</th>
     </tr>
   </thead>
@@ -18,6 +19,7 @@
       <td>{{ b.targetMoisture }}%</td>
       <td>{% if b.actualMoisture != None %}{{ b.actualMoisture }}%{% else %}—{% endif %}</td>
       <td>{{ b.rollGrade }}</td>
+      <td>{% if b.is_locked %}<span class="badge badge-locked" title="槽位为可下槽，最新批次的开始时间与目标含水率已锁定，不可修改">已锁定</span>{% else %}<span class="muted">—</span>{% endif %}</td>
       <td class="actions">
         <a class="btn btn-sm btn-secondary" href="{% url 'batch_edit' b.pk %}">编辑</a>
         <a class="btn btn-sm btn-danger" href="{% url 'batch_delete' b.pk %}">删除</a>

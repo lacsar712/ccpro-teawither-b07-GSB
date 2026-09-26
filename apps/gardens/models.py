@@ -1,6 +1,15 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 
+from .rules import (
+    LOCKED_FIELDS,
+    LOCK_MESSAGE,
+    READY_MOISTURE_LIMIT,
+    READY_MOISTURE_MESSAGE,
+    get_latest_batch,
+    is_batch_locked,
+)
+
 
 class Garden(models.Model):
     name = models.CharField("茶园名称", max_length=120)
@@ -14,6 +23,12 @@ class Garden(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class TroughQuerySet(models.QuerySet):
+    def ready(self):
+        """当前为「可下槽」的槽。首页计数、列表筛选共用此查询，保证对账一致。"""
+        return self.filter(status=Trough.STATUS_READY)
 
 
 class Trough(models.Model):
@@ -42,6 +57,8 @@ class Trough(models.Model):
         default=STATUS_LOADING,
     )
 
+    objects = TroughQuerySet.as_manager()
+
     class Meta:
         ordering = ["garden__name", "troughCode"]
         verbose_name = "萎凋槽"
@@ -57,25 +74,20 @@ class Trough(models.Model):
         return f"{self.garden.name}-{self.troughCode}"
 
     def latest_batch(self):
-        return self.batches.order_by("-startedAt", "-id").first()
+        # 与锁定判定同源，避免两处各写一套“最新批次”口径。
+        return get_latest_batch(self)
 
     def clean(self):
         super().clean()
         if self.status != self.STATUS_READY:
             return
-        latest = None
-        if self.pk:
-            latest = (
-                WitherBatch.objects.filter(trough_id=self.pk)
-                .order_by("-startedAt", "-id")
-                .first()
-            )
-        if latest is None or latest.actualMoisture is None or latest.actualMoisture > 40:
-            raise ValidationError(
-                {
-                    "status": "无法设为可下槽：最新萎凋批次的实测含水率为空或高于 40%。"
-                }
-            )
+        latest = self.latest_batch()
+        if (
+            latest is None
+            or latest.actualMoisture is None
+            or latest.actualMoisture > READY_MOISTURE_LIMIT
+        ):
+            raise ValidationError({"status": READY_MOISTURE_MESSAGE})
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -109,3 +121,26 @@ class WitherBatch(models.Model):
 
     def __str__(self):
         return f"{self.trough} @ {self.startedAt:%Y-%m-%d %H:%M}"
+
+    def _locked_field_changes(self):
+        """已存在批次在锁定态下被改动的锁定字段（仅模型层兜底，正常入口走表单）。"""
+        if not self.pk or not is_batch_locked(self):
+            return []
+        old = type(self).objects.filter(pk=self.pk).values(*LOCKED_FIELDS).first()
+        if old is None:
+            return []
+        changed = []
+        for field in LOCKED_FIELDS:
+            if getattr(self, field) != old[field]:
+                changed.append(field)
+        return changed
+
+    def clean(self):
+        super().clean()
+        changed = self._locked_field_changes()
+        if changed:
+            raise ValidationError({field: LOCK_MESSAGE for field in changed})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)

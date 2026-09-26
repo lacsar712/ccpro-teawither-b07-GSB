@@ -75,13 +75,21 @@ def ensure_seed_data():
         rollGrade="二级",
     )
 
-    # Ready trough with valid moisture
+    # Ready trough with valid moisture：一条历史（非最新）批次 + 一条最新批次。
+    # 历史批次不受锁定影响；可下槽期间只有“最新批次”的开始时间/目标含水率被锁。
     t4 = Trough.objects.create(
         garden=g2,
         troughCode="B-02",
         cultivar="龙井43",
         loadKg=Decimal("110.00"),
         status=Trough.STATUS_WITHERING,
+    )
+    WitherBatch.objects.create(
+        trough=t4,
+        startedAt=now - timezone.timedelta(hours=48),
+        targetMoisture=Decimal("42.00"),
+        actualMoisture=Decimal("41.50"),
+        rollGrade="二级",
     )
     WitherBatch.objects.create(
         trough=t4,

@@ -295,3 +295,66 @@ table.data tr:hover td {
   text-align: center;
   color: var(--muted);
 }
+
+/* 状态筛选 chips */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.85rem;
+}
+
+.chip {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--muted);
+  font-size: 0.88rem;
+  text-decoration: none !important;
+}
+
+.chip:hover {
+  border-color: var(--tea-green);
+  color: var(--tea-green-dark);
+}
+
+.chip-active {
+  background: var(--tea-green);
+  border-color: var(--tea-green);
+  color: #fff !important;
+}
+
+/* 锁定相关 */
+.badge-locked {
+  margin-left: 0.35rem;
+  background: #ede7f6;
+  color: #4527a0;
+  border: 1px solid #d1c4e9;
+}
+
+.input-readonly {
+  background: #f1f3f0;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.lock-note {
+  margin: 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  background: #f3eefc;
+  border: 1px solid #d1c4e9;
+  color: #4527a0;
+  font-size: 0.9rem;
+}
+
+a.stat-link {
+  text-decoration: none !important;
+}
+
+a.stat-link:hover {
+  box-shadow: 0 2px 8px rgba(35, 79, 44, 0.18);
+}

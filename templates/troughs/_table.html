@@ -17,7 +17,10 @@
       <td>{{ t.troughCode }}</td>
       <td>{{ t.cultivar }}</td>
       <td>{{ t.loadKg }}</td>
-      <td><span class="badge badge-{{ t.status }}">{{ t.get_status_display }}</span></td>
+      <td>
+        <span class="badge badge-{{ t.status }}">{{ t.get_status_display }}</span>
+        {% if t.latest_locked %}<span class="badge badge-locked" title="最新批次的开始时间与目标含水率已锁定">已锁定</span>{% endif %}
+      </td>
       <td class="actions">
         <a class="btn btn-sm btn-secondary" href="{% url 'trough_edit' t.pk %}">编辑</a>
         <a class="btn btn-sm btn-danger" href="{% url 'trough_delete' t.pk %}">删除</a>
