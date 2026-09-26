@@ -101,14 +101,28 @@ class TroughListView(LoginRequiredMixin, ListView):
     context_object_name = "troughs"
 
     def get_queryset(self):
-        return Trough.objects.select_related("garden").all()
+        qs = Trough.objects.select_related("garden").all()
+        # 与首页「可下槽」统计同一口径：status 字段 + STATUS_CHOICES 常量
+        self.status_filter = self.request.GET.get("status", "")
+        valid = {code for code, _label in Trough.STATUS_CHOICES}
+        if self.status_filter not in valid:
+            self.status_filter = ""
+        if self.status_filter:
+            qs = qs.filter(status=self.status_filter)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["status_filter"] = self.status_filter
+        context["status_choices"] = Trough.STATUS_CHOICES
+        return context
 
     def get(self, request, *args, **kwargs):
         self.object_list = self.get_queryset()
         if _wants_htmx(request):
             html = render_to_string(
                 "troughs/_table.html",
-                {"troughs": self.object_list},
+                self.get_context_data(),
                 request=request,
             )
             return HttpResponse(html)

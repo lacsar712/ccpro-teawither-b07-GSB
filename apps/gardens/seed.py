@@ -52,7 +52,8 @@ def ensure_seed_data():
         status=Trough.STATUS_WITHERING,
     )
 
-    now = timezone.now()
+    # 与编辑表单同为分钟精度，避免锁定批次编辑时的误报
+    now = timezone.now().replace(second=0, microsecond=0)
     WitherBatch.objects.create(
         trough=t1,
         startedAt=now - timezone.timedelta(hours=18),
@@ -83,6 +84,15 @@ def ensure_seed_data():
         loadKg=Decimal("110.00"),
         status=Trough.STATUS_WITHERING,
     )
+    # 历史（非最新）批次：不受「可下槽」锁定影响，可自由编辑
+    WitherBatch.objects.create(
+        trough=t4,
+        startedAt=now - timezone.timedelta(hours=72),
+        targetMoisture=Decimal("36.50"),
+        actualMoisture=Decimal("36.20"),
+        rollGrade="一级",
+    )
+    # 最新批次：槽位可下槽期间其目标含水率与开始时间锁定
     WitherBatch.objects.create(
         trough=t4,
         startedAt=now - timezone.timedelta(hours=24),

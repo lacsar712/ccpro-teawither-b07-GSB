@@ -56,6 +56,15 @@ python manage.py runserver 0.0.0.0:4100
 
 **业务规则**：将槽位状态设为 `ready`（可下槽）时，若最新批次的 `actualMoisture` 为空或大于 40，抛出中文 `ValidationError`。
 
+**「可下槽」锁定规则**：
+
+- **触发**：槽位状态为 `ready`（可下槽）时，其**最新批次**进入锁定态。
+- **锁定字段**：最新批次的 `targetMoisture`（目标含水率）与 `startedAt`（开始时间）禁止修改，尝试保存会被后端以中文说明拒绝。
+- **仍可修改**：`actualMoisture`（实测含水率）与 `rollGrade`（揉捻等级）可继续编辑，走原有校验。
+- **非最新批次不受此锁**：历史批次可自由编辑。
+- **解除**：槽位状态改回 `loading`（装叶中）或 `withering`（萎凋中）后锁定即解除，解除后目标含水率可正常修改。
+- **同源判定**：锁定判定集中在 `apps/gardens/models.py` 的 `latest_batch_of` / `is_trough_locked` / `is_batch_locked` / `locked_batch_fields`，改态入口（`Trough.clean`）、批次编辑保存（`WitherBatch.clean`）、编辑页只读渲染与槽/批次列表的「锁定」徽标全部共用；首页「可下槽」统计与槽列表 `?status=ready` 筛选同一口径，可点击对账。
+
 ## 种子数据
 
 ```bash

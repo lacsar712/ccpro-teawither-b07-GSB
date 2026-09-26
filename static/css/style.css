@@ -216,6 +216,54 @@ table.data tr:hover td {
   color: #004085;
 }
 
+.badge-locked {
+  background: #e2e3e5;
+  color: #41464b;
+  border: 1px solid #c8cbcf;
+}
+
+.filter-bar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.85rem;
+}
+
+.btn-filter-active {
+  background: var(--tea-green-dark);
+}
+
+.stat-link {
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+
+.stat-link:hover {
+  border-color: var(--tea-green);
+  box-shadow: 0 0 0 2px rgba(47, 107, 58, 0.2);
+}
+
+.input[readonly] {
+  background: #eef1ee;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.lock-notice {
+  background: #fff8e1;
+  border: 1px solid #f0e0a8;
+  border-radius: 6px;
+  padding: 0.55rem 0.85rem;
+  color: #6d5a00;
+  font-size: 0.92rem;
+}
+
+.help {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
 .form-grid {
   display: grid;
   gap: 0.85rem;

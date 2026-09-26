@@ -6,12 +6,16 @@
   <a class="btn btn-secondary" href="{% url 'batch_list' %}">返回列表</a>
 </div>
 <div class="card">
+  {% if form.instance.is_locked %}
+  <p class="lock-notice">该批次是「可下槽」槽位的最新批次：<strong>目标含水率</strong>与<strong>开始时间</strong>已锁定（只读，后端同样拒绝修改）；实测含水率与揉捻等级仍可修改。</p>
+  {% endif %}
   <form method="post" class="form-grid">
     {% csrf_token %}
     {% for field in form %}
     <div class="form-row">
       <label for="{{ field.id_for_label }}">{{ field.label }}</label>
       {{ field }}
+      {% if field.help_text %}<p class="muted help">{{ field.help_text }}</p>{% endif %}
       {{ field.errors }}
     </div>
     {% endfor %}

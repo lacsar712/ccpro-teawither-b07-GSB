@@ -17,6 +17,9 @@
     {% endfor %}
     {{ form.non_field_errors }}
     <p class="muted">设为「可下槽」时，最新批次实测含水率须已填且 ≤ 40%。</p>
+    {% if object.is_locked %}
+    <p class="lock-notice">当前为「可下槽」：最新批次的<strong>目标含水率</strong>与<strong>开始时间</strong>已锁定；改回「装叶中」或「萎凋中」后锁定解除。</p>
+    {% endif %}
     <button class="btn" type="submit">保存</button>
   </form>
 </div>

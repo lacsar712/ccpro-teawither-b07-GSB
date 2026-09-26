@@ -10,7 +10,10 @@
   <div class="stat"><div class="num">{{ batch_count }}</div><div class="label">萎凋批次</div></div>
   <div class="stat"><div class="num">{{ loading_count }}</div><div class="label">装叶中</div></div>
   <div class="stat"><div class="num">{{ withering_count }}</div><div class="label">萎凋中</div></div>
-  <div class="stat"><div class="num">{{ ready_count }}</div><div class="label">可下槽</div></div>
+  <a class="stat stat-link" href="{% url 'trough_list' %}?status=ready" title="查看可下槽槽位列表（与列表筛选同口径）">
+    <div class="num">{{ ready_count }}</div><div class="label">可下槽</div>
+  </a>
 </div>
 <p class="muted" style="margin-top:1.25rem">规则提示：槽位设为「可下槽」时，最新批次实测含水率须已填写且不超过 40%。</p>
+<p class="muted">锁定规则：槽位「可下槽」期间，其最新批次的<strong>目标含水率</strong>与<strong>开始时间</strong>锁定（列表与编辑页同步标示）；实测含水率与揉捻等级仍可修改；非最新批次不受此锁；改回「装叶中」后锁定解除。</p>
 {% endblock %}

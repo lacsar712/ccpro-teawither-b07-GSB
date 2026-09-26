@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Garden, Trough, WitherBatch
+from .models import Garden, Trough, WitherBatch, locked_batch_fields
 
 
 class GardenForm(forms.ModelForm):
@@ -64,3 +64,10 @@ class WitherBatchForm(forms.ModelForm):
 
             local = timezone.localtime(self.instance.startedAt)
             self.initial["startedAt"] = local.strftime("%Y-%m-%dT%H:%M")
+        # 前端只读与后端强制同源：锁定字段（目标含水率/开始时间）在编辑页
+        # 渲染为只读；若绕过前端提交新值，后端 WitherBatch.clean 同样拒绝。
+        self.locked_fields = locked_batch_fields(self.instance)
+        for name in self.locked_fields:
+            field = self.fields[name]
+            field.widget.attrs["readonly"] = "readonly"
+            field.help_text = "槽位「可下槽」期间该字段已锁定，后端保存同样拒绝修改。"
